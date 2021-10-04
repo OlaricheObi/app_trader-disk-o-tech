@@ -1,29 +1,28 @@
--- SELECT *
--- FROM play_store_apps INNER JOIN app_store_apps
--- ON play_store_apps.name = app_store_apps.name;
-
--- SELECT COUNT(DISTINCT(name))
--- FROM play_store_apps
-
--- SELECT play_store_apps.name, app_store_apps.rating, app_store_apps.price
--- FROM play_store_apps LEFT JOIN app_store_apps
--- USING (name);
-
--- WITH unique_names AS (SELECT DISTINCT(name)
-					  
--- SELECT aa.name AS app_name, ROUND(ROUND(aa.rating/5, 1)*5, 1) AS apple_rating, aa.price AS apple_price, aa.primary_genre AS apple_genre,
--- ROUND(ROUND(pa.rating/5, 1)*5, 1) AS play_rating, pa.price AS play_price, pa.genres AS play_genre
--- FROM play_store_apps AS pa INNER JOIN app_store_apps AS aa
--- ON aa.name = pa.name
--- ORDER BY pa.rating DESC
-					  
-
-SELECT DISTINCT(aa.name) AS app_name, ((ROUND(ROUND(aa.rating/5, 1)*5, 1) *2) +1) + ((ROUND(ROUND(pa.rating/5, 1)*5, 1) * 2) +1) AS joint_lifespan, (((ROUND(ROUND(aa.rating/5, 1)*5, 1) *2) +1) + ((ROUND(ROUND(pa.rating/5, 1)*5, 1) * 2) +1)) * 12 * 5000 AS expected_revenue, aa.price AS apple_price, TRIM(REPLACE(pa.price, '$', '')) AS play_price, aa.primary_genre AS apple_genre, pa.genres AS play_genre,
+WITH main_query AS (SELECT DISTINCT(aa.name) AS app_name, ROUND(((((ROUND(ROUND(aa.rating/5, 1) *5, 1) *2) +1) + ((ROUND(ROUND(pa.rating/5, 1) *5, 1) * 2) +1)) / 2), 2) AS avg_lifespan,
+				ROUND(((((ROUND(ROUND(aa.rating/5, 1)*5, 1) *2) +1) + ((ROUND(ROUND(pa.rating/5, 1)*5, 1) * 2) +1)) / 2) * 12 * 5000, 2) AS expected_revenue,
+				ROUND(((((ROUND(ROUND(aa.rating/5, 1)*5, 1) *2) +1) + ((ROUND(ROUND(pa.rating/5, 1)*5, 1) * 2) +1)) / 2) * 12 * 1000, 2) AS marketing_costs,
+				aa.price AS apple_price, TRIM(REPLACE(pa.price, '$', '')) AS play_price,
+				aa.primary_genre AS apple_genre, pa.genres AS play_genre, aa.review_count AS a_review_count, aa.content_rating AS apple_content_rating,
 	CASE WHEN aa.price <= 1 THEN 10000.00
-	WHEN aa.price > 1 THEN aa.price * 10000 END AS apple_purchase_price,
+	WHEN aa.price > 1 THEN aa.price * 10000 END AS app_purchase_price,
 	CASE WHEN TRIM(REPLACE(pa.price, '$', ''))::numeric <= 1 THEN 10000.00
 	WHEN TRIM(REPLACE(pa.price, '$', ''))::numeric > 1 THEN TRIM(REPLACE(pa.price, '$', ''))::numeric * 10000 END AS play_purchase_price
 FROM play_store_apps AS pa INNER JOIN app_store_apps AS aa
 ON aa.name = pa.name
-ORDER BY joint_lifespan DESC;
--- added app purchase price
+ORDER BY expected_revenue DESC)
+SELECT expected_revenue - marketing_costs - GREATEST(app_purchase_price, 
+	   play_purchase_price) AS net_profit, 
+	   app_name, apple_genre, play_genre, 
+	   apple_content_rating, 
+	   main_query.a_review_count
+FROM main_query
+ORDER BY net_profit DESC, a_review_count DESC
+LIMIT 10;
+
+SELECT aa.name,
+	   aa.review_count + pa.review_count AS total_reviews,
+	   aa.rating
+FROM app_store_apps AS aa
+INNER JOIN play_store_apps AS pa
+USING (name);
+
