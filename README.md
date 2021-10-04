@@ -43,3 +43,9 @@ c. Prepare a 5-10 minute presentation for the leadership team of App Trader to i
 
 
 ### All analysis work must be done in PostgreSQL, however you may export query results if you want to create charts in Excel for your presentations.
+
+Content rating is the suggested age range for app users. The 4 different ranges are 4+ years old, 9+ years old, 12+ years old, and 17+ years old. 
+The first chart shows how profitable each content rating range is for our top 10 list. There were 2 apps in the 12+ content rating for a profit of $960,000, 2 apps in the 9+ content rating for a profit of $1,000,000, and 6 apps in the 4+ content rating for a profit of almost 3 million. So, apps avaible to people as young as 4 make up 60% of our top 10 list, and they account for almost 2/3 of the total profit.
+The second chart shows how profitable each content rating range is for all of the apps in our data set. You can see that apps available to younger people make generally make more profit.
+This slide shows a pie chart, illustrating content rating of all apps based on %. 62% of all apps have a content rating of 4+, 20% have a 12+ rating, 13% have a 9+ rating, and 5% have a 17+ rating. Apps availble to younger people make up nearly 2/3 of all apps. Apps in the content rating of 4+ are more profitable, as well as making up the majority of the apps available.
+Basically, the lower the content rating, the more people use the app, therefore it's worth more.
